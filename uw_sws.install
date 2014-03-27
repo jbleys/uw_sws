@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the uwcourses module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function uw_sws_install() {
+    // set persistent variables
+    variable_set('uw_sws_http_status_file', drupal_get_path('module', 'uw_sws') .'/http_status.txt');    
+    // see  https://ws.admin.washington.edu/student/v4/public/
+    variable_set('uw_ws_domain', 'https://ws.admin.washington.edu');
+    variable_set('uw_sws_v4_public_campus', '/student/v4/public/campus');
+    variable_set('uw_sws_v4_public_college', '/student/v4/public/college');
+    variable_set('uw_sws_v4_public_course', '/student/v4/public/course');
+    variable_set('uw_sws_v4_public_section', '/student/v4/public/section');
+    variable_set('uw_sws_v4_public_curriculum', '/student/v4/public/curriculum');
+    variable_set('uw_sws_v4_public_department', '/student/v4/public/department');
+}
+/**
+ * Implements hook_uninstall().
+ */
+function uw_sws_uninstall() {
+    // cleanup persistent variables
+    variable_del('uw_sws_http_status_file');
+    variable_del('uw_ws_domain');
+    variable_del('uw_sws_v4_public_campus');
+    variable_del('uw_sws_v4_public_college');
+    variable_del('uw_sws_v4_public_course');
+    variable_del('uw_sws_v4_public_section');
+    variable_del('uw_sws_v4_public_curriculum');
+    variable_del('uw_sws_v4_public_department');
+}

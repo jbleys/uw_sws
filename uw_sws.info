@@ -1,0 +1,7 @@
+name = UW Student Service Resources Configuration
+description = Configuration module for UW Student Service Resources.
+core = 7.x
+package = UW Web Services Integration
+
+configure = admin/config/services/uw_sws
+files[] = uw_sws.module

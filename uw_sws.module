@@ -1,0 +1,117 @@
+<?php
+
+/**
+* Implements hook_help.
+*
+* Displays help and module information.
+*
+* @param path
+*   Which path of the site we're using to display help
+* @param arg
+*   Array that holds the current path as returned from arg() function
+*/
+function uw_sws_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+        case "admin/help#uw_sws":
+            $output .= '<h3>' . t('About UW Student Service Resources Configuration') . '</h3>';
+            $output .= '<p>' . t("This is a configuration module for UW Student Service Resources.") . '<br />';
+            $output .= 'UW Reference: ' . l('Student Web Service Client Home Page', 'https://wiki.cac.washington.edu/display/SWS/Student+Web+Service+Client+Home+Page', array('attributes'=>array('target'=>'_blank',))) . '</p>';
+            $output .= '<p>' . t("This module only addresses <i>public</i> resources. No certs or tokens are required to use these resources.") . '</p>';
+            break;
+        case "admin/config/services/uw_sws":
+            $output .= '<h3>' . t('UW Student Service Resources Configuration') . '</h3>';
+            $output .= '<p>' . t("See also: ") . l('v4 Student Service Resources', 'https://ws.admin.washington.edu/student/v4/public/', array('attributes'=>array('target'=>'_blank',))) . '</p>';
+            break;
+    }
+    return $output;
+} 
+
+/**
+* Implements hook_menu().
+* 
+* The name of this hook is a bit misleading, as it does far more than simply assign menu items. 
+* Using this hook, modules register paths to define how URL requests are handled.
+*/
+function uw_sws_menu() {
+    $items = array();
+    
+    // uw_courses_sws config form
+    $items['admin/config/services/uw_sws'] = array(
+        'title' => 'UW Student Service Resources Configuration',
+        'description' => 'Configuration settings for UW Student Service Resources.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('uw_sws_config_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+  return $items;
+}
+
+/**
+* Page callback
+*
+* @see uw_sws_menu()
+* 
+*/
+function uw_sws_config_form($form, &$form_state) {
+    // note!
+    // using the same variable name as the form element will automatically save 
+    // the new values to the variable that is given in variable_get().
+    
+    $form['uw_sws_v4_public'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('v4 public resources'),
+    );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_campus'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to Campus search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_campus', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_college'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to College search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_college', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_course'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to Course search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_course', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_section'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to Course Section search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_section', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_curriculum'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to Curriculum search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_curriculum', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_v4_public']['uw_sws_v4_public_department'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path to Department search.'),
+        '#default_value' => variable_get('uw_sws_v4_public_department', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+
+
+  return system_settings_form($form);
+}

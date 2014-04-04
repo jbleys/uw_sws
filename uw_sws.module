@@ -112,6 +112,61 @@ function uw_sws_config_form($form, &$form_state) {
         '#required' => TRUE,
       );
 
-
   return system_settings_form($form);
+}
+
+/**
+ * Helper function.
+ * Initiates a cURL request or retrieves cached data based on url
+ * 
+ * @staticvar type $my_data
+ * @param type $url
+ * @return type
+ * @throws Exception
+ */
+function _uw_sws_get_curl($url) {
+    try {
+        static $my_data;
+        $cache_key = $url;
+        $bin = 'cache';
+        $cache = cache_get($cache_key, $bin);
+        if ($cache) {
+            // get cached data
+            //drupal_set_message('<i>Getting cached data for cache_key</i>: ' . $cache_key, 'status');
+            //dpm($cache);
+            $my_data = unserialize($cache->data);
+        } else {
+            // Do expensive calculations here, and populate $my_data
+            //drupal_set_message('<i>Connecting to</i>: "' . $url . '"' , 'status');
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_RETURNTRANSFER => TRUE,
+                CURLOPT_URL => $url,
+            ));
+            $response = curl_exec($curl);
+            $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $info = curl_getinfo($curl);
+            curl_close($curl);
+
+            // load the HTTP codes
+            $http_codes = parse_ini_file(variable_get('uw_sws_http_status_file'));
+
+            if ($http_status === 200) {
+                $response = json_decode($response);
+                $my_data = $response;
+                //drupal_set_message($http_status . ': ' . $http_codes[$info['http_code']], 'status');
+            } else {
+                throw new Exception($http_status . ': ' . $http_codes[$info['http_code']] . '<br />url: ' . $url, $http_status);
+            }
+              
+            // populate cache  
+            //drupal_set_message('<i>Setting cache for</i>: "' . $url . '"' , 'status');
+            cache_set($cache_key,  serialize($my_data), $bin);
+          }
+        
+        return $my_data;
+        
+    } catch (Exception $exc) {
+        drupal_set_message($exc->getMessage(), 'error');
+    }
 }

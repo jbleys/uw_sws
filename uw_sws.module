@@ -15,13 +15,13 @@ function uw_sws_help($path, $arg) {
     switch ($path) {
         case "admin/help#uw_sws":
             $output .= '<h3>' . t('About UW Student Service Resources Configuration') . '</h3>';
-            $output .= '<p>' . t("This is a configuration module for UW Student Service Resources.") . '<br />';
-            $output .= 'UW Reference: ' . l('Student Web Service Client Home Page', 'https://wiki.cac.washington.edu/display/SWS/Student+Web+Service+Client+Home+Page', array('attributes'=>array('target'=>'_blank',))) . '</p>';
+            $output .= '<p>' . t("This is a configuration module for UW SWS Resources.") . '<br />';
+            $output .= 'UW Reference: ' . l('Student Web Service Client Home Page', 'https://wiki.cac.washington.edu/display/SWS/Student+Web+Service', array('attributes'=>array('target'=>'_blank',))) . '</p>';
             $output .= '<p>' . t("This module only addresses <i>public</i> resources. No certs or tokens are required to use these resources.") . '</p>';
             break;
         case "admin/config/services/uw_sws":
-            $output .= '<h3>' . t('UW Student Service Resources Configuration') . '</h3>';
-            $output .= '<p>' . t("See also: ") . l('v4 Student Service Resources', 'https://ws.admin.washington.edu/student/v4/public/', array('attributes'=>array('target'=>'_blank',))) . '</p>';
+            $output .= '<h3>' . t('UW Student Web Service - resources configuration') . '</h3>';
+            $output .= '<p>' . t("See also: ") . l('Student Service Resources', 'https://wiki.cac.washington.edu/display/SWS/Student+Web+Service', array('attributes'=>array('target'=>'_blank',))) . '</p>';
             break;
     }
     return $output;
@@ -59,59 +59,151 @@ function uw_sws_config_form($form, &$form_state) {
     // using the same variable name as the form element will automatically save 
     // the new values to the variable that is given in variable_get().
     
-    $form['uw_sws_v4_public'] = array(
+    $form['uw_sws_public'] = array(
         '#type' => 'fieldset',
-        '#title' => t('v4 public resources'),
+        '#title' => t('v'.variable_get('uw_sws_version').' public resources'),
     );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_campus'] = array(
+    $form['uw_sws_public']['uw_sws_version'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SWS Version.'),
+        '#default_value' => variable_get('uw_sws_version', 5),
+        '#size' => 8,
+        '#maxlength' => 1,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_public']['uw_sws_auth_access_token'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Access Token for non-restricted resources.'),
+        '#default_value' => variable_get('uw_sws_auth_access_token', ''),
+        '#size' => 64,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+      );
+    $form['uw_sws_public']['uw_sws_public_campus'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to Campus search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_campus', ''),
+        '#default_value' => variable_get('uw_sws_public_campus', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_college'] = array(
+    $form['uw_sws_public']['uw_sws_public_college'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to College search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_college', ''),
+        '#default_value' => variable_get('uw_sws_public_college', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_course'] = array(
+    $form['uw_sws_public']['uw_sws_public_course'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to Course search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_course', ''),
+        '#default_value' => variable_get('uw_sws_public_course', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_section'] = array(
+    $form['uw_sws_public']['uw_sws_public_section'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to Course Section search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_section', ''),
+        '#default_value' => variable_get('uw_sws_public_section', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_curriculum'] = array(
+    $form['uw_sws_public']['uw_sws_public_curriculum'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to Curriculum search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_curriculum', ''),
+        '#default_value' => variable_get('uw_sws_public_curriculum', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
-    $form['uw_sws_v4_public']['uw_sws_v4_public_department'] = array(
+    $form['uw_sws_public']['uw_sws_public_department'] = array(
         '#type' => 'textfield',
         '#title' => t('Path to Department search.'),
-        '#default_value' => variable_get('uw_sws_v4_public_department', ''),
+        '#default_value' => variable_get('uw_sws_public_department', ''),
         '#size' => 64,
         '#maxlength' => 128,
         '#required' => TRUE,
       );
+    
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Save configuration',
+    );
 
+    $form['#submit'][] = 'uw_sws_config_form_submit';
+    
+    //return system_settings_form($form);
+    return $form;
+}
 
-  return system_settings_form($form);
+function uw_sws_config_form_submit($form, &$form_state) {
+    variable_set('uw_sws_version', $form_state['values']['uw_sws_version']);    
+    variable_set('uw_sws_auth_access_token', $form_state['values']['uw_sws_auth_access_token']);
+    variable_set('uw_sws_public_campus', '/student/v'.$form_state['values']['uw_sws_version'].'/campus');
+    variable_set('uw_sws_public_college', '/student/v'.$form_state['values']['uw_sws_version'].'/college');
+    variable_set('uw_sws_public_course', '/student/v'.$form_state['values']['uw_sws_version'].'/course');
+    variable_set('uw_sws_public_section', '/student/v'.$form_state['values']['uw_sws_version'].'/section');
+    variable_set('uw_sws_public_curriculum', '/student/v'.$form_state['values']['uw_sws_version'].'/curriculum');
+    variable_set('uw_sws_public_department', '/student/v'.$form_state['values']['uw_sws_version'].'/department');
+    drupal_set_message('The configuration options have been saved.');
+}
+
+/**
+ * Helper function.
+ * Initiates a cURL request or retrieves cached data based on url
+ * 
+ * @staticvar type $my_data
+ * @param type $url
+ * @return type
+ * @throws Exception
+ */
+function _uw_sws_get_curl($url) {
+    try {
+        static $my_data;
+        $cache_key = $url;
+        $bin = 'cache';
+        $cache = cache_get($cache_key, $bin);
+        if ($cache) {
+            // get cached data
+            $my_data = unserialize($cache->data);
+        } else {
+            // Do expensive calculations here, and populate $my_data
+            $curl = curl_init();
+            $httpheader = array(
+                'Authorization: Bearer '.variable_get('uw_sws_auth_access_token'),
+            );           
+            curl_setopt_array($curl, array(
+                CURLOPT_HEADER => FALSE,    // we don't want the header data back in the response
+                CURLOPT_HTTPHEADER => $httpheader,
+                CURLOPT_RETURNTRANSFER => TRUE,
+                CURLOPT_URL => $url,
+            ));
+            $response = curl_exec($curl);
+            $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $info = curl_getinfo($curl);
+            curl_close($curl);
+
+            // load the HTTP codes
+            $http_codes = parse_ini_file(variable_get('uw_sws_http_status_file'));
+
+            if ($http_status === 200) {            
+                $response = json_decode($response);
+                $my_data = $response;
+                //drupal_set_message($http_status . ': ' . $http_codes[$info['http_code']], 'status');
+            } else {
+                throw new Exception($http_status . ': ' . $http_codes[$info['http_code']] . '<br />url: ' . $url, $http_status);
+            }
+              
+            // populate cache  
+            cache_set($cache_key,  serialize($my_data), $bin);
+          }
+        
+        return $my_data;
+        
+    } catch (Exception $exc) {
+        drupal_set_message($exc->getMessage(), 'error');
+    }
 }

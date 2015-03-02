@@ -1,5 +1,5 @@
-name = UW Student Service Resources Configuration
-description = Configuration module for UW Student Service Resources.
+name = UW Student Web Service - resources configuration
+description = Configuration module for UW SWS Resources.
 core = 7.x
 package = UW Web Services Integration
 
